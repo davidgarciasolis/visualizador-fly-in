@@ -1,0 +1,9 @@
+# Ignora todo por defecto.
+*
+
+# Permite recorrer carpetas y conservar solo los archivos web.
+!*/
+!.gitignore
+!*.html
+!*.css
+!*.js

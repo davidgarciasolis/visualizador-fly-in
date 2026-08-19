@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fly-in · Visualizador</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header>
+        <div>
+          <p class="eyebrow">FLY-IN / SIMULATION VIEWER</p>
+          <h1>Ruta de drones</h1>
+        </div>
+        <p id="status" class="status" aria-live="polite">Carga un mapa para comenzar.</p>
+      </header>
+
+      <section class="workspace">
+        <aside class="control-panel">
+          <label for="map-picker">Mapa incluido</label>
+          <select id="map-picker">
+            <option value="maps/easy/01_linear_path.txt">Easy · Linear path</option>
+            <option value="maps/easy/02_simple_fork.txt">Easy · Simple fork</option>
+            <option value="maps/easy/03_basic_capacity.txt">Easy · Basic capacity</option>
+            <option value="maps/medium/01_dead_end_trap.txt">Medium · Dead end trap</option>
+            <option value="maps/medium/02_circular_loop.txt">Medium · Circular loop</option>
+            <option value="maps/medium/03_priority_puzzle.txt">Medium · Priority puzzle</option>
+            <option value="maps/hard/01_maze_nightmare.txt">Hard · Maze nightmare</option>
+            <option value="maps/hard/02_capacity_hell.txt">Hard · Capacity hell</option>
+            <option value="maps/hard/03_ultimate_challenge.txt">Hard · Ultimate challenge</option>
+            <option value="maps/challenger/01_the_impossible_dream.txt">Challenger · Impossible dream</option>
+          </select>
+          <button id="load-map" class="secondary">Cargar mapa</button>
+
+          <label class="file-label" for="map-file">O carga un archivo de mapa <input id="map-file" type="file" accept=".txt,text/plain" /></label>
+
+          <label for="solution-input">Solución (un turno por línea)</label>
+          <textarea id="solution-input" spellcheck="false" placeholder="D1-waypoint1 D2-waypoint1&#10;D1-waypoint2&#10;D1-goal D2-waypoint2"></textarea>
+          <button id="load-solution">Visualizar solución</button>
+          <p class="help">Formato: <code>D&lt;id&gt;-&lt;destino&gt;</code>. Un drone ausente de una línea espera ese turno.</p>
+        </aside>
+
+        <section class="visual-panel" aria-label="Grafo de hubs">
+          <div class="graph-toolbar">
+            <div><span id="turn-label">Turno 0</span><span id="turn-total">de 0</span></div>
+            <div id="map-summary"></div>
+          </div>
+          <div id="graph-wrap"><svg id="graph" role="img" aria-label="Grafo de hubs y drones"></svg></div>
+          <div id="legend" class="legend"></div>
+        </section>
+      </section>
+
+      <section class="timeline-panel">
+        <div class="playback">
+          <button id="first-turn" class="icon-button" title="Primer turno">|◀</button>
+          <button id="previous-turn" class="icon-button" title="Turno anterior">◀</button>
+          <button id="play-pause" class="play-button">▶ Reproducir</button>
+          <button id="next-turn" class="icon-button" title="Turno siguiente">▶</button>
+          <button id="last-turn" class="icon-button" title="Último turno">▶|</button>
+          <input id="turn-slider" type="range" min="0" max="0" value="0" aria-label="Seleccionar turno" />
+        </div>
+        <ol id="turn-list" class="turn-list" aria-label="Lista de turnos"></ol>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
