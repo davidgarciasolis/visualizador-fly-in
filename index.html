@@ -18,8 +18,22 @@
 
       <section class="workspace">
         <aside class="control-panel">
-          <label class="file-label" for="map-file">Archivo de mapa <input id="map-file" type="file" accept=".txt,text/plain" /></label>
-          <p class="help">Selecciona un archivo <code>.txt</code> con el formato Fly-in.</p>
+          <label for="map-picker">Mapa incluido</label>
+          <select id="map-picker">
+            <option value="maps/easy/01_linear_path.txt">Easy · Linear path</option>
+            <option value="maps/easy/02_simple_fork.txt">Easy · Simple fork</option>
+            <option value="maps/easy/03_basic_capacity.txt">Easy · Basic capacity</option>
+            <option value="maps/medium/01_dead_end_trap.txt">Medium · Dead end trap</option>
+            <option value="maps/medium/02_circular_loop.txt">Medium · Circular loop</option>
+            <option value="maps/medium/03_priority_puzzle.txt">Medium · Priority puzzle</option>
+            <option value="maps/hard/01_maze_nightmare.txt">Hard · Maze nightmare</option>
+            <option value="maps/hard/02_capacity_hell.txt">Hard · Capacity hell</option>
+            <option value="maps/hard/03_ultimate_challenge.txt">Hard · Ultimate challenge</option>
+            <option value="maps/challenger/01_the_impossible_dream.txt">Challenger · Impossible dream</option>
+          </select>
+          <button id="load-map" class="secondary">Cargar mapa</button>
+
+          <label class="file-label" for="map-file">O carga un archivo de mapa <input id="map-file" type="file" accept=".txt,text/plain" /></label>
 
           <label for="solution-input">Solución (un turno por línea)</label>
           <textarea id="solution-input" spellcheck="false" placeholder="D1-waypoint1 D2-waypoint1&#10;D1-waypoint2&#10;D1-goal D2-waypoint2"></textarea>
