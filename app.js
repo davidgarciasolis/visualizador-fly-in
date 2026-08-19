@@ -60,14 +60,31 @@ function snapshots() {
 }
 
 function el(name, attrs = {}) { const node = document.createElementNS(svgNs, name); Object.entries(attrs).forEach(([k,v]) => node.setAttribute(k,v)); return node; }
+function droneSlots(count, centerX, centerY) {
+  if (count === 1) return [{ x: centerX, y: centerY }];
+  const columns = Math.ceil(Math.sqrt(count));
+  const spacing = 13;
+  return Array.from({ length: count }, (_, index) => ({
+    x: centerX + ((index % columns) - (columns - 1) / 2) * spacing,
+    y: centerY + (Math.floor(index / columns) - (Math.ceil(count / columns) - 1) / 2) * spacing,
+  }));
+}
+
 function renderGraph() {
   if (!state.map) return; const svg = $('graph'); svg.replaceChildren(); const hubs = [...state.map.hubs.values()];
   const minX=Math.min(...hubs.map(h=>h.x)), maxX=Math.max(...hubs.map(h=>h.x)), minY=Math.min(...hubs.map(h=>h.y)), maxY=Math.max(...hubs.map(h=>h.y));
-  const scale = Math.min(1050 / Math.max(1,maxX-minX), 600 / Math.max(1,maxY-minY)); const pos = (hub) => ({ x:80+(hub.x-minX)*scale, y:80+(maxY-hub.y)*scale });
-  svg.setAttribute('viewBox', `0 0 ${Math.max(650,(maxX-minX)*scale+160)} ${Math.max(460,(maxY-minY)*scale+160)}`);
+  // Cada unidad del mapa conserva una separación mínima. Los grafos anchos se
+  // desplazan horizontalmente en vez de comprimir nodos, textos y conexiones.
+  const scaleX = 128, scaleY = 140, padding = 90;
+  const width = Math.max(650, (maxX - minX) * scaleX + padding * 2);
+  const height = Math.max(460, (maxY - minY) * scaleY + padding * 2);
+  const pos = (hub) => ({ x:padding+(hub.x-minX)*scaleX, y:padding+(maxY-hub.y)*scaleY });
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.style.width = `${width}px`;
+  svg.style.height = `${height}px`;
   const current = snapshots()[state.turn]; const transit = new Set([...current.values()].filter(p=>p.edge).map(p=>p.edge));
   state.map.edges.forEach(edge => { const a=pos(state.map.hubs.get(edge.a)), b=pos(state.map.hubs.get(edge.b)); svg.append(el('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:`edge ${transit.has(edge)?'transit':''}`})); });
-  hubs.forEach(hub => { const p=pos(hub), drones=[...current].filter(([,place])=>place.hub===hub.name).map(([id])=>id), group=el('g',{class:`hub ${hub.kind==='start_hub'?'start':''} ${hub.kind==='end_hub'?'end':''} ${hub.zone==='blocked'?'blocked':''}`}); group.append(el('circle',{cx:p.x,cy:p.y,r:31,fill:hub.color||'#35516f',class:'core'})); const label=el('text',{x:p.x,y:p.y-45,class:'hub-label','text-anchor':'middle'}); label.textContent=hub.name; group.append(label); const meta=el('text',{x:p.x,y:p.y+50,class:'meta-label','text-anchor':'middle'}); meta.textContent=`${hub.zone||'normal'} · cap ${hub.max_drones||1}`; group.append(meta); drones.forEach((id,i)=>{ const angle=(i/drones.length)*Math.PI*2-Math.PI/2, dx=Math.cos(angle)*Math.min(19,8+i*3),dy=Math.sin(angle)*Math.min(19,8+i*3); group.append(el('circle',{cx:p.x+dx,cy:p.y+dy,r:10,fill:droneColor(id),class:'drone'})); const txt=el('text',{x:p.x+dx,cy:p.y+dy,class:'drone-label'}); txt.textContent=`D${id}`; group.append(txt); }); svg.append(group); });
+  hubs.forEach(hub => { const p=pos(hub), drones=[...current].filter(([,place])=>place.hub===hub.name).map(([id])=>id), slots=droneSlots(drones.length,p.x,p.y), radius=Math.max(31,Math.ceil(Math.sqrt(drones.length))*8+8), group=el('g',{class:`hub ${hub.kind==='start_hub'?'start':''} ${hub.kind==='end_hub'?'end':''} ${hub.zone==='blocked'?'blocked':''}`}); group.append(el('circle',{cx:p.x,cy:p.y,r:radius,fill:hub.color||'#35516f',class:'core'})); const label=el('text',{x:p.x,y:p.y-radius-14,class:'hub-label','text-anchor':'middle'}); label.textContent=hub.name; group.append(label); const meta=el('text',{x:p.x,y:p.y+radius+19,class:'meta-label','text-anchor':'middle'}); meta.textContent=`${hub.zone||'normal'} · cap ${hub.max_drones||1}`; group.append(meta); drones.forEach((id,index)=>{ const slot=slots[index]; group.append(el('circle',{cx:slot.x,cy:slot.y,r:6,fill:droneColor(id),class:'drone'})); const txt=el('text',{x:slot.x,cy:slot.y,class:'drone-label'}); txt.textContent=id; group.append(txt); }); svg.append(group); });
   [...current].filter(([,p])=>p.edge).forEach(([id,{edge}])=>{ const a=pos(state.map.hubs.get(edge.a)),b=pos(state.map.hubs.get(edge.b)); const circle=el('circle',{cx:(a.x+b.x)/2,cy:(a.y+b.y)/2,r:11,fill:droneColor(id),class:'drone'}); svg.append(circle); const txt=el('text',{x:(a.x+b.x)/2,cy:(a.y+b.y)/2,class:'drone-label'});txt.textContent=`D${id}`;svg.append(txt); });
 }
 function droneColor(id) { return ['#59d3b2','#ffb866','#7bb5ff','#f78fb3','#be8cff','#f1e05a','#60d9f1','#ff7e67'][((id-1)%8)]; }
