@@ -95,9 +95,7 @@ function render() {
 function setTurn(turn) { state.turn=Math.max(0,Math.min(turn,state.turns.length)); render(); }
 function stop() { clearInterval(state.playing); state.playing=null; $('play-pause').textContent='▶ Reproducir'; }
 function loadMap(text, name='mapa') { try { state.map=parseMap(text); state.turns=[]; state.turn=0; stop(); $('status').textContent=`${name} cargado correctamente.`; render(); } catch(e) { $('status').textContent=`Error: ${e.message}`; } }
-async function loadSelectedMap() { try { const path=$('map-picker').value, response=await fetch(path); if(!response.ok)throw new Error('No se pudo leer el archivo.'); loadMap(await response.text(),path.split('/').pop()); } catch(e) { $('status').textContent=`Error al cargar el mapa: ${e.message}`; } }
-$('load-map').onclick=loadSelectedMap; $('map-file').onchange=async(e)=>{const file=e.target.files[0];if(file)loadMap(await file.text(),file.name);};
+$('map-file').onchange=async(e)=>{const file=e.target.files[0];if(file)loadMap(await file.text(),file.name);};
 $('load-solution').onclick=()=>{ if(!state.map)return; try{const turns=parseSolution($('solution-input').value);validateSolution(turns);state.turns=turns;setTurn(0);$('status').textContent=`Solución cargada: ${state.turns.length} turnos.`;}catch(e){$('status').textContent=`Error: ${e.message}`;} };
 $('first-turn').onclick=()=>setTurn(0); $('previous-turn').onclick=()=>setTurn(state.turn-1); $('next-turn').onclick=()=>setTurn(state.turn+1); $('last-turn').onclick=()=>setTurn(state.turns.length); $('turn-slider').oninput=e=>setTurn(Number(e.target.value));
 $('play-pause').onclick=()=>{if(state.playing){stop();return;} if(state.turn===state.turns.length)setTurn(0);$('play-pause').textContent='❚❚ Pausar';state.playing=setInterval(()=>{if(state.turn===state.turns.length){stop();}else setTurn(state.turn+1);},800);};
-loadSelectedMap();
